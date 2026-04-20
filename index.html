@@ -19,9 +19,9 @@
 </head>
 <body class="pb-32">
 
-    <div class="sticky top-0 z-50 glass px-6 py-4 mb-4 flex justify-between items-center">
+    <div class="sticky top-0 z-50 glass px-6 py-4 mb-4 flex justify-between items-center border-b border-white/5">
         <h1 class="font-black text-xl tracking-tighter text-indigo-400">CUENTAS.LICHO</h1>
-        <div id="status-pill" class="text-[9px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">EN LÍNEA</div>
+        <div id="status-pill" class="text-[9px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ACTIVO</div>
     </div>
 
     <div class="max-w-md mx-auto px-6">
@@ -30,7 +30,7 @@
             <div id="card-balance" class="glass p-8 rounded-[2.5rem] mb-6 text-center transition-all duration-500">
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Disponible</p>
                 <div class="text-5xl font-black mt-2 tracking-tighter" id="balance-total">$0</div>
-                <div id="deuda-msg" class="hidden text-rose-500 text-[10px] font-bold mt-2 uppercase">⚠️ Estás en deuda</div>
+                <div id="deuda-msg" class="hidden text-rose-500 text-[10px] font-bold mt-2 uppercase tracking-widest">⚠️ Estás en deuda</div>
             </div>
 
             <div class="glass p-6 rounded-[2rem] mb-6">
@@ -39,77 +39,77 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="glass p-4 rounded-2xl">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Entradas</p>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Ingresos</p>
                     <p class="text-lg font-bold text-emerald-400" id="resumen-in">+$0</p>
                 </div>
                 <div class="glass p-4 rounded-2xl">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Salidas</p>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Gastos</p>
                     <p class="text-lg font-bold text-rose-400" id="resumen-out">-$0</p>
                 </div>
             </div>
         </div>
 
         <div id="view-movimientos" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 px-2">Historial de Gastos</h2>
+            <h2 class="text-xl font-bold mb-4 px-2 tracking-tight">Historial de Gastos</h2>
             <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
-                <button onclick="filtrar('todos')" class="bg-indigo-600 text-white px-5 py-2 rounded-full text-xs font-bold">Todos</button>
-                <button onclick="filtrar('gasto')" class="bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Gastos</button>
-                <button onclick="filtrar('ingreso')" class="bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Ingresos</button>
+                <button onclick="filtrar('todos')" id="filter-todos" class="btn-filtro bg-indigo-600 text-white px-5 py-2 rounded-full text-xs font-bold transition-all">Todos</button>
+                <button onclick="filtrar('gasto')" id="filter-gasto" class="btn-filtro bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold transition-all">Gastos</button>
+                <button onclick="filtrar('ingreso')" id="filter-ingreso" class="btn-filtro bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold transition-all">Ingresos</button>
             </div>
             <div id="lista-movimientos" class="space-y-3"></div>
         </div>
 
         <div id="view-ahorros" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 px-2">Mis Ahorros</h2>
-            <div class="glass p-8 rounded-[2.5rem] mb-6 border-indigo-500/30 shadow-lg shadow-indigo-500/5">
+            <h2 class="text-xl font-bold mb-4 px-2 tracking-tight">Mis Ahorros</h2>
+            <div class="glass p-8 rounded-[2.5rem] mb-6 border-indigo-500/30">
                 <p class="text-xs text-indigo-300 font-bold uppercase mb-2">Total Guardado</p>
                 <div class="text-4xl font-black text-white mb-6" id="ahorro-acumulado">$0</div>
                 
                 <div class="flex justify-between text-[10px] font-bold mb-2">
-                    <span class="text-slate-500 uppercase font-bold">Meta 1 Millón</span>
+                    <span class="text-slate-500 uppercase">Meta 1 Millón</span>
                     <span class="text-indigo-400" id="porcentaje-ahorro">0%</span>
                 </div>
                 <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
                     <div id="barra-ahorro" class="bg-indigo-500 h-full w-0 transition-all duration-700"></div>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-4 italic text-center">Te faltan <span id="falta-ahorro">$0</span> para el objetivo.</p>
+                <p class="text-[10px] text-slate-500 mt-4 italic text-center">Faltan <span id="falta-ahorro">$0</span></p>
             </div>
             
             <div id="lista-ahorros" class="space-y-3"></div>
         </div>
 
-        <div id="form-container" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div id="form-container" class="hidden fixed inset-0 z-[60] flex items-end justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
             <div class="glass w-full max-w-md p-8 rounded-[2.5rem] border-t border-white/20">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold">Nuevo Registro</h3>
-                    <button onclick="toggleForm()" class="text-slate-400 text-xl"><i class="fa-solid fa-xmark"></i></button>
+                    <h3 class="font-bold uppercase text-xs tracking-widest text-slate-400">Nuevo Registro</h3>
+                    <button onclick="toggleForm()" class="text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <input type="number" id="monto" placeholder="0.00" class="w-full bg-slate-800/50 p-5 rounded-2xl mb-4 text-3xl font-black text-white outline-none ring-2 ring-transparent focus:ring-indigo-500">
-                <input type="text" id="concepto" placeholder="¿En qué?" class="w-full bg-slate-800/50 p-4 rounded-xl mb-6 outline-none text-white">
+                <input type="number" id="monto" placeholder="0.00" class="w-full bg-slate-800/50 p-5 rounded-2xl mb-4 text-4xl font-black text-white outline-none focus:ring-2 ring-indigo-500">
+                <input type="text" id="concepto" placeholder="Concepto" class="w-full bg-slate-800/50 p-4 rounded-xl mb-6 outline-none text-white">
                 
-                <div class="grid grid-cols-2 gap-2 mb-6">
-                    <button onclick="setTipo('gasto')" id="t-gasto" class="tipo-btn bg-rose-500 text-white p-3 rounded-xl font-bold text-xs">GASTO</button>
-                    <button onclick="setTipo('ingreso')" id="t-ingreso" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl font-bold text-xs">INGRESO</button>
-                    <button onclick="setTipo('ahorro')" id="t-ahorro" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl font-bold text-xs">AHORRAR</button>
-                    <button onclick="setTipo('rescate')" id="t-rescate" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl font-bold text-xs">RESCATAR</button>
+                <div class="grid grid-cols-2 gap-2 mb-6 text-[10px] font-bold">
+                    <button onclick="setTipo('gasto')" id="t-gasto" class="tipo-btn bg-rose-500 text-white p-3 rounded-xl uppercase">Gasto</button>
+                    <button onclick="setTipo('ingreso')" id="t-ingreso" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl uppercase">Ingreso</button>
+                    <button onclick="setTipo('ahorro')" id="t-ahorro" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl uppercase">Ahorro</button>
+                    <button onclick="setTipo('rescate')" id="t-rescate" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl uppercase">Rescate</button>
                 </div>
-                <button onclick="guardarRegistro()" class="w-full bg-indigo-600 py-5 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20">CONFIRMAR</button>
+                <button onclick="guardarRegistro()" class="w-full bg-indigo-600 py-5 rounded-2xl font-black text-lg shadow-lg">GUARDAR</button>
             </div>
         </div>
     </div>
 
     <div class="fixed bottom-0 left-0 right-0 z-50 p-6 flex justify-center">
-        <div class="glass flex items-center justify-between w-full max-w-sm px-4 py-3 rounded-full shadow-2xl border-white/10">
+        <div class="glass flex items-center justify-between w-full max-w-sm px-4 py-3 rounded-full border-white/10 shadow-2xl">
             <button onclick="showTab('inicio')" class="nav-btn text-indigo-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-house"></i></button>
             <button onclick="showTab('movimientos')" class="nav-btn text-slate-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-list-ul"></i></button>
-            <button onclick="toggleForm()" class="bg-indigo-600 w-14 h-14 -mt-10 rounded-full text-white text-2xl shadow-xl border-4 border-slate-900 shadow-indigo-500/40 transition-transform active:scale-90"><i class="fa-solid fa-plus"></i></button>
+            <button onclick="toggleForm()" class="bg-indigo-600 w-14 h-14 -mt-10 rounded-full text-white text-2xl shadow-xl border-4 border-slate-900 transition-transform active:scale-90"><i class="fa-solid fa-plus"></i></button>
             <button onclick="showTab('ahorros')" class="nav-btn text-slate-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-piggy-bank"></i></button>
-            <button class="text-slate-500 w-12 h-12 flex items-center justify-center text-xl opacity-20"><i class="fa-solid fa-user"></i></button>
+            <button class="text-slate-500 w-12 h-12 flex items-center justify-center text-xl opacity-10"><i class="fa-solid fa-user"></i></button>
         </div>
     </div>
 
     <script>
-        let movimientos = JSON.parse(localStorage.getItem('licho_v5')) || [];
+        let movimientos = JSON.parse(localStorage.getItem('licho_v6')) || [];
         let tipoActual = 'gasto';
         let filtroActual = 'todos';
         let mainChart;
@@ -119,7 +119,8 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('tab-active'));
             document.getElementById(`view-${tabId}`).classList.add('tab-active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-indigo-500', 'text-slate-500'));
-            event.currentTarget.classList.replace('text-slate-500', 'text-indigo-500');
+            // Usamos event.currentTarget para el botón específico
+            if(event) event.currentTarget.classList.replace('text-slate-500', 'text-indigo-500');
             render();
         }
 
@@ -137,12 +138,24 @@
             btn.classList.replace('text-slate-400', 'text-white');
         }
 
+        function filtrar(t) {
+            filtroActual = t;
+            // Actualizar estilo de botones de filtro
+            document.querySelectorAll('.btn-filtro').forEach(btn => {
+                btn.classList.replace('bg-indigo-600', 'bg-slate-800');
+                btn.classList.replace('text-white', 'text-slate-400');
+            });
+            document.getElementById(`filter-${t}`).classList.replace('bg-slate-800', 'bg-indigo-600');
+            document.getElementById(`filter-${t}`).classList.replace('text-slate-400', 'text-white');
+            render();
+        }
+
         function guardarRegistro() {
             const monto = parseFloat(document.getElementById('monto').value);
             const concepto = document.getElementById('concepto').value;
             if(!monto || !concepto) return;
             movimientos.unshift({ id: Date.now(), monto, concepto, tipo: tipoActual, fecha: new Date().toLocaleDateString('es-AR') });
-            localStorage.setItem('licho_v5', JSON.stringify(movimientos));
+            localStorage.setItem('licho_v6', JSON.stringify(movimientos));
             document.getElementById('monto').value = '';
             document.getElementById('concepto').value = '';
             toggleForm();
@@ -151,60 +164,71 @@
 
         function borrar(id) {
             movimientos = movimientos.filter(m => m.id !== id);
-            localStorage.setItem('licho_v5', JSON.stringify(movimientos));
+            localStorage.setItem('licho_v6', JSON.stringify(movimientos));
             render();
         }
 
         function render() {
             const listaM = document.getElementById('lista-movimientos');
             const listaA = document.getElementById('lista-ahorros');
-            let efectivo = 0, ahorroAcumulado = 0, inT = 0, outT = 0;
+            let efectivo = 0, ahorroAcumulado = 0, inT = 0, outT = 0, ahorroT = 0;
             
             listaM.innerHTML = '';
             listaA.innerHTML = '';
 
             movimientos.forEach(m => {
+                // Lógica de saldo global
                 if(m.tipo === 'ingreso') { efectivo += m.monto; inT += m.monto; }
                 if(m.tipo === 'gasto') { efectivo -= m.monto; outT += m.monto; }
-                if(m.tipo === 'ahorro') { efectivo -= m.monto; ahorroAcumulado += m.monto; }
+                if(m.tipo === 'ahorro') { efectivo -= m.monto; ahorroAcumulado += m.monto; ahorroT += m.monto; }
                 if(m.tipo === 'rescate') { efectivo += m.monto; ahorroAcumulado -= m.monto; }
 
+                // Generar HTML del item
+                const color = { gasto: 'rose', ingreso: 'emerald', ahorro: 'indigo', rescate: 'amber' }[m.tipo];
                 const itemHTML = `
-                    <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-${m.tipo === 'gasto' ? 'rose' : m.tipo === 'ingreso' ? 'emerald' : 'indigo'}-500">
+                    <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-${color}-500">
                         <div>
                             <p class="font-bold text-sm text-white">${m.concepto}</p>
-                            <p class="text-[9px] text-slate-500 uppercase">${m.fecha} • ${m.tipo}</p>
+                            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-tighter">${m.fecha} • ${m.tipo}</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-black text-white text-sm">$${m.monto.toLocaleString()}</p>
+                            <p class="font-black text-white text-sm tracking-tight">$${m.monto.toLocaleString()}</p>
                             <button onclick="borrar(${m.id})" class="text-[8px] text-slate-600 font-bold uppercase">Borrar</button>
                         </div>
                     </div>
                 `;
 
-                if(m.tipo === 'ahorro' || m.tipo === 'rescate') listaA.innerHTML += itemHTML;
-                else listaM.innerHTML += itemHTML;
+                // Clasificar en vistas
+                if(m.tipo === 'ahorro' || m.tipo === 'rescate') {
+                    listaA.innerHTML += itemHTML;
+                } else {
+                    // Aplicar el filtro solo en la pestaña de movimientos
+                    if(filtroActual === 'todos' || m.tipo === filtroActual) {
+                        listaM.innerHTML += itemHTML;
+                    }
+                }
             });
 
-            // UI UPDATES
+            // Actualizar Saldo Principal
             document.getElementById('balance-total').innerText = `$${efectivo.toLocaleString()}`;
             document.getElementById('ahorro-acumulado').innerText = `$${ahorroAcumulado.toLocaleString()}`;
             document.getElementById('resumen-in').innerText = `+$${inT.toLocaleString()}`;
             document.getElementById('resumen-out').innerText = `-$${outT.toLocaleString()}`;
             
+            // Meta Ahorro
             const porc = Math.min((ahorroAcumulado / META) * 100, 100);
             document.getElementById('barra-ahorro').style.width = porc + '%';
             document.getElementById('porcentaje-ahorro').innerText = porc.toFixed(1) + '%';
             document.getElementById('falta-ahorro').innerText = `$${Math.max(META - ahorroAcumulado, 0).toLocaleString()}`;
 
-            // Chart
+            // Gráfico
             const ctx = document.getElementById('mainChart').getContext('2d');
             if(mainChart) mainChart.destroy();
             mainChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     datasets: [{
-                        data: [outT, inT, ahorroAcumulado],
+                        data: [outT, inT, ahorroT],
                         backgroundColor: ['#f43f5e', '#10b981', '#6366f1'],
                         borderWidth: 0
                     }]
@@ -212,10 +236,11 @@
                 options: { cutout: '85%', plugins: { legend: { display: false } } }
             });
 
+            // Estilo de deuda
             const cardB = document.getElementById('card-balance');
             const deudaM = document.getElementById('deuda-msg');
-            if(efectivo < 0) { cardB.classList.add('bg-rose-500/10', 'border-rose-500/30'); deudaM.classList.remove('hidden'); }
-            else { cardB.classList.remove('bg-rose-500/10', 'border-rose-500/30'); deudaM.classList.add('hidden'); }
+            if(efectivo < 0) { cardB.classList.add('border-rose-500/30', 'bg-rose-500/5'); deudaM.classList.remove('hidden'); }
+            else { cardB.classList.remove('border-rose-500/30', 'bg-rose-500/5'); deudaM.classList.add('hidden'); }
         }
 
         render();

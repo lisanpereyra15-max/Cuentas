@@ -1,0 +1,153 @@
+index.html 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuentas.licho | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="pb-24">
+
+    <div class="bg-indigo-600 text-white pt-10 pb-20 px-6 rounded-b-[40px] shadow-lg">
+        <div class="max-w-md mx-auto">
+            <h1 class="text-sm opacity-80 font-semibold uppercase tracking-widest">Balance Total</h1>
+            <div class="text-4xl font-extrabold mt-1" id="balance-total">$0.00</div>
+            
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <div class="bg-white/10 p-4 rounded-2xl">
+                    <p class="text-xs opacity-70">Ingresos</p>
+                    <p class="text-xl font-bold text-emerald-300" id="resumen-ingresos">+$0</p>
+                </div>
+                <div class="bg-white/10 p-4 rounded-2xl">
+                    <p class="text-xs opacity-70">Gastos</p>
+                    <p class="text-xl font-bold text-rose-300" id="resumen-gastos">-$0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto px-6 -mt-10">
+        <div id="form-container" class="hidden glass p-6 rounded-3xl shadow-xl mb-6 border border-white">
+            <h2 class="font-bold text-slate-800 mb-4 text-center">Nuevo Registro</h2>
+            <div class="space-y-4">
+                <input type="number" id="monto" placeholder="Monto (ej: 5000)" class="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                <input type="text" id="concepto" placeholder="Concepto (ej: Hamburguesa)" class="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                <select id="tipo" class="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 outline-none">
+                    <option value="gasto">🔻 Gasto</option>
+                    <option value="ingreso">🔺 Ingreso</option>
+                    <option value="inversion">💎 Inversión</option>
+                </select>
+                <button onclick="guardarRegistro()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                    Guardar Movimiento
+                </button>
+            </div>
+        </div>
+
+        <div class="space-y-3" id="lista-movimientos">
+            </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 p-6 flex justify-center">
+        <div class="glass flex items-center gap-12 px-8 py-4 rounded-full shadow-2xl border border-white/50">
+            <button class="text-indigo-600 text-xl"><i class="fa-solid fa-house"></i></button>
+            <button onclick="toggleForm()" class="bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-lg hover:scale-110 transition-transform active:scale-95">
+                <i class="fa-solid fa-plus" id="btn-icon"></i>
+            </button>
+            <button class="text-slate-400 text-xl"><i class="fa-solid fa-chart-pie"></i></button>
+        </div>
+    </div>
+
+    <script>
+        let movimientos = JSON.parse(localStorage.getItem('cuentas_licho')) || [];
+
+        function toggleForm() {
+            const form = document.getElementById('form-container');
+            const icon = document.getElementById('btn-icon');
+            form.classList.toggle('hidden');
+            icon.classList.toggle('rotate-45');
+        }
+
+        function guardarRegistro() {
+            const monto = document.getElementById('monto').value;
+            const concepto = document.getElementById('concepto').value;
+            const tipo = document.getElementById('tipo').value;
+
+            if(!monto || !concepto) return alert("Che, completá los datos");
+
+            const registro = {
+                id: Date.now(),
+                monto: parseFloat(monto),
+                concepto,
+                tipo,
+                fecha: new Date().toLocaleDateString('es-AR')
+            };
+
+            movimientos.unshift(registro);
+            localStorage.setItem('cuentas_licho', JSON.stringify(movimientos));
+            
+            // Limpiar y cerrar
+            document.getElementById('monto').value = '';
+            document.getElementById('concepto').value = '';
+            toggleForm();
+            render();
+        }
+
+        function borrarRegistro(id) {
+            movimientos = movimientos.filter(m => m.id !== id);
+            localStorage.setItem('cuentas_licho', JSON.stringify(movimientos));
+            render();
+        }
+
+        function render() {
+            const lista = document.getElementById('lista-movimientos');
+            let total = 0, ingresos = 0, gastos = 0;
+            
+            lista.innerHTML = '';
+
+            movimientos.forEach(m => {
+                if(m.tipo === 'ingreso') {
+                    ingresos += m.monto;
+                    total += m.monto;
+                } else if(m.tipo === 'gasto') {
+                    gastos += m.monto;
+                    total -= m.monto;
+                } else {
+                    total -= m.monto; // Las inversiones restan del efectivo actual
+                }
+
+                const color = m.tipo === 'ingreso' ? 'emerald' : m.tipo === 'inversion' ? 'amber' : 'rose';
+                const icon = m.tipo === 'ingreso' ? 'arrow-up' : m.tipo === 'inversion' ? 'gem' : 'arrow-down';
+
+                lista.innerHTML += `
+                    <div class="bg-white p-4 rounded-3xl flex items-center shadow-sm border border-slate-100 animate-fade-in">
+                        <div class="w-12 h-12 bg-${color}-100 text-${color}-600 rounded-2xl flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-${icon}"></i>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            <p class="font-bold text-slate-800">${m.concepto}</p>
+                            <p class="text-xs text-slate-400">${m.fecha} • ${m.tipo.toUpperCase()}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-extrabold text-${color}-600">${m.tipo === 'gasto' ? '-' : ''}$${m.monto.toLocaleString()}</p>
+                            <button onclick="borrarRegistro(${m.id})" class="text-[10px] text-slate-300 hover:text-rose-500 uppercase font-bold tracking-tighter">Borrar</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('balance-total').innerText = `$${total.toLocaleString()}`;
+            document.getElementById('resumen-ingresos').innerText = `+$${ingresos.toLocaleString()}`;
+            document.getElementById('resumen-gastos').innerText = `-$${gastos.toLocaleString()}`;
+        }
+
+        render();
+    </script>
+</body>
+</html>

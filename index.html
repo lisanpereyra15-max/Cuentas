@@ -3,96 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuentas.licho | Cashflow</title>
+    <title>Cuentas.licho | App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .bg-deuda { background: rgba(244, 63, 94, 0.2); border: 1px solid #f43f5e; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-32">
 
-    <div class="max-w-md mx-auto px-6 pt-10">
-        <h1 class="font-extrabold text-2xl text-indigo-400 mb-6 text-center">CUENTAS.LICHO</h1>
-
-        <div id="card-balance" class="glass p-6 rounded-[2.5rem] mb-6 transition-all duration-500">
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest text-center">Efectivo Disponible</p>
-            <div class="text-5xl font-black mt-2 text-center" id="balance-total">$0</div>
-            <p id="label-estado" class="text-[10px] text-center mt-2 font-bold uppercase tracking-tighter text-slate-500">Saldo en orden</p>
-            
-            <div class="grid grid-cols-2 gap-4 mt-8">
-                <div class="text-center border-r border-slate-700">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Ahorro Acumulado</p>
-                    <p class="text-xl font-bold text-indigo-400" id="total-ahorro">$0</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Meta 1M</p>
-                    <p class="text-xl font-bold text-slate-300" id="porcentaje-meta">0%</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass p-4 rounded-[2rem] mb-6">
-            <canvas id="myChart" style="max-height: 150px;"></canvas>
-        </div>
-
-        <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
-            <button onclick="filtrar('todos')" class="filter-btn bg-indigo-600 text-white px-5 py-2 rounded-full text-xs font-bold">Todos</button>
-            <button onclick="filtrar('gasto')" class="filter-btn bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Gastos</button>
-            <button onclick="filtrar('ingreso')" class="filter-btn bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Ingresos</button>
-            <button onclick="filtrar('ahorro')" class="filter-btn bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Ahorros</button>
-        </div>
-
-        <div id="form-container" class="hidden glass p-6 rounded-[2rem] mb-6 border-indigo-500/30">
-            <input type="number" id="monto" placeholder="0.00" class="w-full bg-slate-800/50 p-4 rounded-xl mb-3 outline-none text-2xl font-bold text-white">
-            <input type="text" id="concepto" placeholder="Concepto" class="w-full bg-slate-800/50 p-4 rounded-xl mb-4 outline-none text-white">
-            
-            <div class="grid grid-cols-2 gap-2 mb-4">
-                <button onclick="setTipo('gasto')" id="t-gasto" class="tipo-btn bg-rose-500 text-white p-3 rounded-xl text-xs font-bold">GASTO 🔻</button>
-                <button onclick="setTipo('ingreso')" id="t-ingreso" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl text-xs font-bold">INGRESO ➕</button>
-                <button onclick="setTipo('ahorro')" id="t-ahorro" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl text-xs font-bold text-[10px]">GUARDAR AHORRO 💎</button>
-                <button onclick="setTipo('rescate')" id="t-rescate" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl text-xs font-bold text-[10px]">SACAR DE AHORRO 🔓</button>
-            </div>
-            <button onclick="guardarRegistro()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold text-white shadow-lg">Confirmar Operación</button>
-        </div>
-
-        <div id="lista-movimientos" class="space-y-3"></div>
+    <div class="sticky top-0 z-50 glass px-6 py-4 mb-4 flex justify-between items-center">
+        <h1 class="font-black text-xl tracking-tighter text-indigo-400">CUENTAS.LICHO</h1>
+        <div id="status-pill" class="text-[9px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">EN LÍNEA</div>
     </div>
 
-    <div class="fixed bottom-8 left-0 right-0 flex justify-center">
-        <button onclick="toggleForm()" class="bg-indigo-600 w-16 h-16 rounded-full text-white text-3xl shadow-2xl border-4 border-slate-900 shadow-indigo-500/50">
-            <i class="fa-solid fa-plus" id="btn-icon"></i>
-        </button>
+    <div class="max-w-md mx-auto px-6">
+        
+        <div id="view-inicio" class="tab-content tab-active">
+            <div id="card-balance" class="glass p-8 rounded-[2.5rem] mb-6 text-center transition-all duration-500">
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Disponible</p>
+                <div class="text-5xl font-black mt-2 tracking-tighter" id="balance-total">$0</div>
+                <div id="deuda-msg" class="hidden text-rose-500 text-[10px] font-bold mt-2 uppercase">⚠️ Estás en deuda</div>
+            </div>
+
+            <div class="glass p-6 rounded-[2rem] mb-6">
+                <canvas id="mainChart" style="max-height: 160px;"></canvas>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Entradas</p>
+                    <p class="text-lg font-bold text-emerald-400" id="resumen-in">+$0</p>
+                </div>
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Salidas</p>
+                    <p class="text-lg font-bold text-rose-400" id="resumen-out">-$0</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-movimientos" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 px-2">Historial de Gastos</h2>
+            <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
+                <button onclick="filtrar('todos')" class="bg-indigo-600 text-white px-5 py-2 rounded-full text-xs font-bold">Todos</button>
+                <button onclick="filtrar('gasto')" class="bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Gastos</button>
+                <button onclick="filtrar('ingreso')" class="bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold">Ingresos</button>
+            </div>
+            <div id="lista-movimientos" class="space-y-3"></div>
+        </div>
+
+        <div id="view-ahorros" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 px-2">Mis Ahorros</h2>
+            <div class="glass p-8 rounded-[2.5rem] mb-6 border-indigo-500/30 shadow-lg shadow-indigo-500/5">
+                <p class="text-xs text-indigo-300 font-bold uppercase mb-2">Total Guardado</p>
+                <div class="text-4xl font-black text-white mb-6" id="ahorro-acumulado">$0</div>
+                
+                <div class="flex justify-between text-[10px] font-bold mb-2">
+                    <span class="text-slate-500 uppercase font-bold">Meta 1 Millón</span>
+                    <span class="text-indigo-400" id="porcentaje-ahorro">0%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                    <div id="barra-ahorro" class="bg-indigo-500 h-full w-0 transition-all duration-700"></div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-4 italic text-center">Te faltan <span id="falta-ahorro">$0</span> para el objetivo.</p>
+            </div>
+            
+            <div id="lista-ahorros" class="space-y-3"></div>
+        </div>
+
+        <div id="form-container" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="glass w-full max-w-md p-8 rounded-[2.5rem] border-t border-white/20">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold">Nuevo Registro</h3>
+                    <button onclick="toggleForm()" class="text-slate-400 text-xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <input type="number" id="monto" placeholder="0.00" class="w-full bg-slate-800/50 p-5 rounded-2xl mb-4 text-3xl font-black text-white outline-none ring-2 ring-transparent focus:ring-indigo-500">
+                <input type="text" id="concepto" placeholder="¿En qué?" class="w-full bg-slate-800/50 p-4 rounded-xl mb-6 outline-none text-white">
+                
+                <div class="grid grid-cols-2 gap-2 mb-6">
+                    <button onclick="setTipo('gasto')" id="t-gasto" class="tipo-btn bg-rose-500 text-white p-3 rounded-xl font-bold text-xs">GASTO</button>
+                    <button onclick="setTipo('ingreso')" id="t-ingreso" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl font-bold text-xs">INGRESO</button>
+                    <button onclick="setTipo('ahorro')" id="t-ahorro" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl font-bold text-xs">AHORRAR</button>
+                    <button onclick="setTipo('rescate')" id="t-rescate" class="tipo-btn bg-slate-800 text-slate-400 p-3 rounded-xl font-bold text-xs">RESCATAR</button>
+                </div>
+                <button onclick="guardarRegistro()" class="w-full bg-indigo-600 py-5 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20">CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 z-50 p-6 flex justify-center">
+        <div class="glass flex items-center justify-between w-full max-w-sm px-4 py-3 rounded-full shadow-2xl border-white/10">
+            <button onclick="showTab('inicio')" class="nav-btn text-indigo-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-house"></i></button>
+            <button onclick="showTab('movimientos')" class="nav-btn text-slate-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-list-ul"></i></button>
+            <button onclick="toggleForm()" class="bg-indigo-600 w-14 h-14 -mt-10 rounded-full text-white text-2xl shadow-xl border-4 border-slate-900 shadow-indigo-500/40 transition-transform active:scale-90"><i class="fa-solid fa-plus"></i></button>
+            <button onclick="showTab('ahorros')" class="nav-btn text-slate-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-piggy-bank"></i></button>
+            <button class="text-slate-500 w-12 h-12 flex items-center justify-center text-xl opacity-20"><i class="fa-solid fa-user"></i></button>
+        </div>
     </div>
 
     <script>
-        let movimientos = JSON.parse(localStorage.getItem('cuentas_licho_final')) || [];
+        let movimientos = JSON.parse(localStorage.getItem('licho_v5')) || [];
         let tipoActual = 'gasto';
         let filtroActual = 'todos';
-        let chart;
+        let mainChart;
+        const META = 1000000;
 
-        function toggleForm() {
-            document.getElementById('form-container').classList.toggle('hidden');
-            document.getElementById('btn-icon').classList.toggle('rotate-45');
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('tab-active'));
+            document.getElementById(`view-${tabId}`).classList.add('tab-active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-indigo-500', 'text-slate-500'));
+            event.currentTarget.classList.replace('text-slate-500', 'text-indigo-500');
+            render();
         }
+
+        function toggleForm() { document.getElementById('form-container').classList.toggle('hidden'); }
 
         function setTipo(t) {
             tipoActual = t;
             document.querySelectorAll('.tipo-btn').forEach(b => {
-                b.classList.replace('bg-rose-500', 'bg-slate-800');
-                b.classList.replace('bg-emerald-500', 'bg-slate-800');
-                b.classList.replace('bg-indigo-500', 'bg-slate-800');
-                b.classList.replace('bg-amber-500', 'bg-slate-800');
-                b.classList.add('text-slate-400');
-                b.classList.remove('text-white');
+                b.classList.remove('bg-rose-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-amber-500', 'text-white');
+                b.classList.add('bg-slate-800', 'text-slate-400');
             });
+            const colors = { gasto:'rose', ingreso:'emerald', ahorro:'indigo', rescate:'amber' };
             const btn = document.getElementById(`t-${t}`);
-            const color = t === 'gasto' ? 'rose' : t === 'ingreso' ? 'emerald' : t === 'ahorro' ? 'indigo' : 'amber';
-            btn.classList.replace('bg-slate-800', `bg-${color}-500`);
+            btn.classList.replace('bg-slate-800', `bg-${colors[t]}-500`);
             btn.classList.replace('text-slate-400', 'text-white');
         }
 
@@ -100,9 +141,8 @@
             const monto = parseFloat(document.getElementById('monto').value);
             const concepto = document.getElementById('concepto').value;
             if(!monto || !concepto) return;
-
             movimientos.unshift({ id: Date.now(), monto, concepto, tipo: tipoActual, fecha: new Date().toLocaleDateString('es-AR') });
-            localStorage.setItem('cuentas_licho_final', JSON.stringify(movimientos));
+            localStorage.setItem('licho_v5', JSON.stringify(movimientos));
             document.getElementById('monto').value = '';
             document.getElementById('concepto').value = '';
             toggleForm();
@@ -111,88 +151,71 @@
 
         function borrar(id) {
             movimientos = movimientos.filter(m => m.id !== id);
-            localStorage.setItem('cuentas_licho_final', JSON.stringify(movimientos));
-            render();
-        }
-
-        function filtrar(t) {
-            filtroActual = t;
+            localStorage.setItem('licho_v5', JSON.stringify(movimientos));
             render();
         }
 
         function render() {
-            const lista = document.getElementById('lista-movimientos');
-            let efectivo = 0, ahorroAcumulado = 0;
-            let c_gasto = 0, c_ingreso = 0, c_ahorro = 0;
-
-            lista.innerHTML = '';
+            const listaM = document.getElementById('lista-movimientos');
+            const listaA = document.getElementById('lista-ahorros');
+            let efectivo = 0, ahorroAcumulado = 0, inT = 0, outT = 0;
+            
+            listaM.innerHTML = '';
+            listaA.innerHTML = '';
 
             movimientos.forEach(m => {
-                // Lógica de cálculo
-                if(m.tipo === 'ingreso') { efectivo += m.monto; c_ingreso += m.monto; }
-                if(m.tipo === 'gasto') { efectivo -= m.monto; c_gasto += m.monto; }
-                if(m.tipo === 'ahorro') { efectivo -= m.monto; ahorroAcumulado += m.monto; c_ahorro += m.monto; }
+                if(m.tipo === 'ingreso') { efectivo += m.monto; inT += m.monto; }
+                if(m.tipo === 'gasto') { efectivo -= m.monto; outT += m.monto; }
+                if(m.tipo === 'ahorro') { efectivo -= m.monto; ahorroAcumulado += m.monto; }
                 if(m.tipo === 'rescate') { efectivo += m.monto; ahorroAcumulado -= m.monto; }
 
-                // Filtro visual
-                if(filtroActual !== 'todos' && m.tipo !== filtroActual) return;
-
-                const color = { gasto: 'rose', ingreso: 'emerald', ahorro: 'indigo', rescate: 'amber' }[m.tipo];
-                const icono = { gasto: '🔻', ingreso: '➕', ahorro: '💎', rescate: '🔓' }[m.tipo];
-
-                lista.innerHTML += `
-                    <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-${color}-500">
+                const itemHTML = `
+                    <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-${m.tipo === 'gasto' ? 'rose' : m.tipo === 'ingreso' ? 'emerald' : 'indigo'}-500">
                         <div>
-                            <p class="font-bold text-slate-200 text-sm">${m.concepto}</p>
+                            <p class="font-bold text-sm text-white">${m.concepto}</p>
                             <p class="text-[9px] text-slate-500 uppercase">${m.fecha} • ${m.tipo}</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-black text-${color}-400">${icono} $${m.monto.toLocaleString()}</p>
-                            <button onclick="borrar(${m.id})" class="text-[8px] text-slate-600 font-bold uppercase">Eliminar</button>
+                            <p class="font-black text-white text-sm">$${m.monto.toLocaleString()}</p>
+                            <button onclick="borrar(${m.id})" class="text-[8px] text-slate-600 font-bold uppercase">Borrar</button>
                         </div>
                     </div>
                 `;
+
+                if(m.tipo === 'ahorro' || m.tipo === 'rescate') listaA.innerHTML += itemHTML;
+                else listaM.innerHTML += itemHTML;
             });
 
-            // UI Balance y Deuda
-            const balDiv = document.getElementById('balance-total');
-            const card = document.getElementById('card-balance');
-            const label = document.getElementById('label-estado');
+            // UI UPDATES
+            document.getElementById('balance-total').innerText = `$${efectivo.toLocaleString()}`;
+            document.getElementById('ahorro-acumulado').innerText = `$${ahorroAcumulado.toLocaleString()}`;
+            document.getElementById('resumen-in').innerText = `+$${inT.toLocaleString()}`;
+            document.getElementById('resumen-out').innerText = `-$${outT.toLocaleString()}`;
+            
+            const porc = Math.min((ahorroAcumulado / META) * 100, 100);
+            document.getElementById('barra-ahorro').style.width = porc + '%';
+            document.getElementById('porcentaje-ahorro').innerText = porc.toFixed(1) + '%';
+            document.getElementById('falta-ahorro').innerText = `$${Math.max(META - ahorroAcumulado, 0).toLocaleString()}`;
 
-            balDiv.innerText = `$${efectivo.toLocaleString()}`;
-            if(efectivo < 0) {
-                card.classList.add('bg-deuda');
-                balDiv.classList.add('text-rose-500');
-                label.innerText = "⚠️ Tienes una deuda acumulada";
-                label.classList.replace('text-slate-500', 'text-rose-500');
-            } else {
-                card.classList.remove('bg-deuda');
-                balDiv.classList.remove('text-rose-500');
-                label.innerText = "Saldo en orden";
-                label.classList.replace('text-rose-500', 'text-slate-500');
-            }
-
-            document.getElementById('total-ahorro').innerText = `$${ahorroAcumulado.toLocaleString()}`;
-            document.getElementById('porcentaje-meta').innerText = `${Math.min((ahorroAcumulado/1000000)*100, 100).toFixed(1)}%`;
-
-            updateChart(c_gasto, c_ingreso, c_ahorro);
-        }
-
-        function updateChart(g, i, a) {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            if(chart) chart.destroy();
-            chart = new Chart(ctx, {
+            // Chart
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if(mainChart) mainChart.destroy();
+            mainChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Gastos', 'Ingresos', 'Ahorros'],
                     datasets: [{
-                        data: [g, i, a],
+                        data: [outT, inT, ahorroAcumulado],
                         backgroundColor: ['#f43f5e', '#10b981', '#6366f1'],
                         borderWidth: 0
                     }]
                 },
-                options: { plugins: { legend: { display: false } }, cutout: '80%' }
+                options: { cutout: '85%', plugins: { legend: { display: false } } }
             });
+
+            const cardB = document.getElementById('card-balance');
+            const deudaM = document.getElementById('deuda-msg');
+            if(efectivo < 0) { cardB.classList.add('bg-rose-500/10', 'border-rose-500/30'); deudaM.classList.remove('hidden'); }
+            else { cardB.classList.remove('bg-rose-500/10', 'border-rose-500/30'); deudaM.classList.add('hidden'); }
         }
 
         render();

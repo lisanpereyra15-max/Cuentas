@@ -21,7 +21,7 @@
 
     <div class="sticky top-0 z-50 glass px-6 py-4 mb-4 flex justify-between items-center border-b border-white/5">
         <h1 class="font-black text-xl tracking-tighter text-indigo-400">CUENTAS.LICHO</h1>
-        <div id="status-pill" class="text-[9px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ACTIVO</div>
+        <div id="status-pill" class="text-[9px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-tighter">Sincronizando</div>
     </div>
 
     <div class="max-w-md mx-auto px-6">
@@ -38,11 +38,11 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="glass p-4 rounded-2xl">
+                <div class="glass p-4 rounded-2xl border-l-4 border-emerald-500">
                     <p class="text-[10px] text-slate-500 font-bold uppercase">Ingresos</p>
                     <p class="text-lg font-bold text-emerald-400" id="resumen-in">+$0</p>
                 </div>
-                <div class="glass p-4 rounded-2xl">
+                <div class="glass p-4 rounded-2xl border-l-4 border-rose-500">
                     <p class="text-[10px] text-slate-500 font-bold uppercase">Gastos</p>
                     <p class="text-lg font-bold text-rose-400" id="resumen-out">-$0</p>
                 </div>
@@ -50,7 +50,7 @@
         </div>
 
         <div id="view-movimientos" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 px-2 tracking-tight">Historial de Gastos</h2>
+            <h2 class="text-xl font-bold mb-4 px-2 tracking-tight">Historial</h2>
             <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
                 <button onclick="filtrar('todos')" id="filter-todos" class="btn-filtro bg-indigo-600 text-white px-5 py-2 rounded-full text-xs font-bold transition-all">Todos</button>
                 <button onclick="filtrar('gasto')" id="filter-gasto" class="btn-filtro bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold transition-all">Gastos</button>
@@ -74,14 +74,13 @@
                 </div>
                 <p class="text-[10px] text-slate-500 mt-4 italic text-center">Faltan <span id="falta-ahorro">$0</span></p>
             </div>
-            
             <div id="lista-ahorros" class="space-y-3"></div>
         </div>
 
         <div id="form-container" class="hidden fixed inset-0 z-[60] flex items-end justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
             <div class="glass w-full max-w-md p-8 rounded-[2.5rem] border-t border-white/20">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold uppercase text-xs tracking-widest text-slate-400">Nuevo Registro</h3>
+                    <h3 class="font-bold uppercase text-[10px] tracking-widest text-slate-500">Nuevo Registro</h3>
                     <button onclick="toggleForm()" class="text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 <input type="number" id="monto" placeholder="0.00" class="w-full bg-slate-800/50 p-5 rounded-2xl mb-4 text-4xl font-black text-white outline-none focus:ring-2 ring-indigo-500">
@@ -104,22 +103,51 @@
             <button onclick="showTab('movimientos')" class="nav-btn text-slate-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-list-ul"></i></button>
             <button onclick="toggleForm()" class="bg-indigo-600 w-14 h-14 -mt-10 rounded-full text-white text-2xl shadow-xl border-4 border-slate-900 transition-transform active:scale-90"><i class="fa-solid fa-plus"></i></button>
             <button onclick="showTab('ahorros')" class="nav-btn text-slate-500 w-12 h-12 flex items-center justify-center text-xl"><i class="fa-solid fa-piggy-bank"></i></button>
-            <button class="text-slate-500 w-12 h-12 flex items-center justify-center text-xl opacity-10"><i class="fa-solid fa-user"></i></button>
+            <button class="text-slate-500 w-12 h-12 flex items-center justify-center text-xl opacity-10"><i class="fa-solid fa-gear"></i></button>
         </div>
     </div>
 
     <script>
-        let movimientos = JSON.parse(localStorage.getItem('licho_v6')) || [];
+        // --- CONFIGURACIÓN CLOUD ---
+        // AQUÍ PEGA TU LINK DE GOOGLE SCRIPT ENTRE LAS COMILLAS
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxisbVoBnXcJF4crzToxDIf1demjBdzp249WCmcun5BjqI3dlZKiUIp2J6ljte-Tnvj/exec"; 
+        
+        let movimientos = [];
         let tipoActual = 'gasto';
         let filtroActual = 'todos';
         let mainChart;
         const META = 1000000;
 
+        // --- FUNCIONES DE SINCRONIZACIÓN ---
+        async function cargarDesdeNube() {
+            try {
+                const response = await fetch(SCRIPT_URL + "?action=read");
+                movimientos = await response.json();
+                render();
+            } catch (e) {
+                console.error("Error al leer datos:", e);
+            }
+        }
+
+        async function guardarEnNube(nuevoMov) {
+            movimientos.unshift(nuevoMov);
+            render();
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify(nuevoMov)
+                });
+            } catch (e) {
+                console.error("Error al guardar:", e);
+            }
+        }
+
+        // --- FUNCIONES DE INTERFAZ ---
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('tab-active'));
             document.getElementById(`view-${tabId}`).classList.add('tab-active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-indigo-500', 'text-slate-500'));
-            // Usamos event.currentTarget para el botón específico
             if(event) event.currentTarget.classList.replace('text-slate-500', 'text-indigo-500');
             render();
         }
@@ -140,7 +168,6 @@
 
         function filtrar(t) {
             filtroActual = t;
-            // Actualizar estilo de botones de filtro
             document.querySelectorAll('.btn-filtro').forEach(btn => {
                 btn.classList.replace('bg-indigo-600', 'bg-slate-800');
                 btn.classList.replace('text-white', 'text-slate-400');
@@ -154,17 +181,23 @@
             const monto = parseFloat(document.getElementById('monto').value);
             const concepto = document.getElementById('concepto').value;
             if(!monto || !concepto) return;
-            movimientos.unshift({ id: Date.now(), monto, concepto, tipo: tipoActual, fecha: new Date().toLocaleDateString('es-AR') });
-            localStorage.setItem('licho_v6', JSON.stringify(movimientos));
+
+            const nuevoMov = { 
+                id: Date.now(), 
+                monto, 
+                concepto, 
+                tipo: tipoActual, 
+                fecha: new Date().toLocaleDateString('es-AR') 
+            };
+
+            guardarEnNube(nuevoMov);
             document.getElementById('monto').value = '';
             document.getElementById('concepto').value = '';
             toggleForm();
-            render();
         }
 
         function borrar(id) {
             movimientos = movimientos.filter(m => m.id !== id);
-            localStorage.setItem('licho_v6', JSON.stringify(movimientos));
             render();
         }
 
@@ -177,13 +210,11 @@
             listaA.innerHTML = '';
 
             movimientos.forEach(m => {
-                // Lógica de saldo global
                 if(m.tipo === 'ingreso') { efectivo += m.monto; inT += m.monto; }
                 if(m.tipo === 'gasto') { efectivo -= m.monto; outT += m.monto; }
                 if(m.tipo === 'ahorro') { efectivo -= m.monto; ahorroAcumulado += m.monto; ahorroT += m.monto; }
                 if(m.tipo === 'rescate') { efectivo += m.monto; ahorroAcumulado -= m.monto; }
 
-                // Generar HTML del item
                 const color = { gasto: 'rose', ingreso: 'emerald', ahorro: 'indigo', rescate: 'amber' }[m.tipo];
                 const itemHTML = `
                     <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-${color}-500">
@@ -193,42 +224,36 @@
                         </div>
                         <div class="text-right">
                             <p class="font-black text-white text-sm tracking-tight">$${m.monto.toLocaleString()}</p>
-                            <button onclick="borrar(${m.id})" class="text-[8px] text-slate-600 font-bold uppercase">Borrar</button>
                         </div>
                     </div>
                 `;
 
-                // Clasificar en vistas
                 if(m.tipo === 'ahorro' || m.tipo === 'rescate') {
                     listaA.innerHTML += itemHTML;
                 } else {
-                    // Aplicar el filtro solo en la pestaña de movimientos
                     if(filtroActual === 'todos' || m.tipo === filtroActual) {
                         listaM.innerHTML += itemHTML;
                     }
                 }
             });
 
-            // Actualizar Saldo Principal
             document.getElementById('balance-total').innerText = `$${efectivo.toLocaleString()}`;
             document.getElementById('ahorro-acumulado').innerText = `$${ahorroAcumulado.toLocaleString()}`;
             document.getElementById('resumen-in').innerText = `+$${inT.toLocaleString()}`;
             document.getElementById('resumen-out').innerText = `-$${outT.toLocaleString()}`;
             
-            // Meta Ahorro
             const porc = Math.min((ahorroAcumulado / META) * 100, 100);
             document.getElementById('barra-ahorro').style.width = porc + '%';
             document.getElementById('porcentaje-ahorro').innerText = porc.toFixed(1) + '%';
             document.getElementById('falta-ahorro').innerText = `$${Math.max(META - ahorroAcumulado, 0).toLocaleString()}`;
 
-            // Gráfico
             const ctx = document.getElementById('mainChart').getContext('2d');
             if(mainChart) mainChart.destroy();
             mainChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     datasets: [{
-                        data: [outT, inT, ahorroT],
+                        data: [Math.abs(outT), inT, ahorroT],
                         backgroundColor: ['#f43f5e', '#10b981', '#6366f1'],
                         borderWidth: 0
                     }]
@@ -236,14 +261,13 @@
                 options: { cutout: '85%', plugins: { legend: { display: false } } }
             });
 
-            // Estilo de deuda
             const cardB = document.getElementById('card-balance');
             const deudaM = document.getElementById('deuda-msg');
             if(efectivo < 0) { cardB.classList.add('border-rose-500/30', 'bg-rose-500/5'); deudaM.classList.remove('hidden'); }
             else { cardB.classList.remove('border-rose-500/30', 'bg-rose-500/5'); deudaM.classList.add('hidden'); }
         }
 
-        render();
+        cargarDesdeNube();
     </script>
 </body>
 </html>
